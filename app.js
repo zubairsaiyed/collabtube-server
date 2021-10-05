@@ -10,8 +10,11 @@ const WebSocket = require('ws');
 
 const express = require("express");
 const app = express();
+var expressWs = require('express-ws')(app);
+var wss = expressWs.getWss();
 
-app.listen(3000, () => {
+
+app.listen(process.env.PORT || 3000, () => {
   console.log("Application started and Listening on port 3000");
 });
 
@@ -48,9 +51,9 @@ app.get("/video", (req, res) => {
     });
 });
     
-const wss = new WebSocket.Server({
-    port: 8080,
-});
+// const wss = new WebSocket.Server({
+//     port: 8080,
+// });
 var ws_to_session = new Map();
 var session_to_ws = new Map();
 var queues = new Map();
@@ -61,7 +64,8 @@ function heartbeat(ws) {
   ws.isAlive = true;
 }
 
-wss.on('connection', (ws, req) => {
+// wss.on('connection', (ws, req) => {
+app.ws('/', function(ws, req) {
     console.log("connection opened: " + req.socket.remoteAddress);
 
     ws.isAlive = true;
