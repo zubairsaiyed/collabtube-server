@@ -1,4 +1,8 @@
-var config = require('./config');
+require('dotenv').config();
+
+// var config = require('./config');
+// API_KEY = config.youtube_api_key;
+API_KEY = process.env.YOUTUBE_API_KEY;
 const got = require('got');
 
 
@@ -17,7 +21,7 @@ app.get("/", (req, res) => {
 
 app.get("/search", (req, res) => {
     const numResults = 10;
-    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=${numResults}&q=${req.query.q}&key=`+config.youtube_api_key;
+    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=${numResults}&q=${req.query.q}&key=`+API_KEY;
     got.get(url, {responseType: 'json'})
     .then(resp => {
         const headerDate = resp.headers && resp.headers.date ? resp.headers.date : 'no response date';
@@ -31,7 +35,7 @@ app.get("/search", (req, res) => {
 });
 
 app.get("/video", (req, res) => {
-    const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${req.query.id}&key=`+config.youtube_api_key;
+    const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${req.query.id}&key=`+API_KEY;
     got.get(url, {responseType: 'json'})
     .then(resp => {
         const headerDate = resp.headers && resp.headers.date ? resp.headers.date : 'no response date';
