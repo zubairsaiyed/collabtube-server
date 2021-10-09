@@ -4,6 +4,7 @@ require('dotenv').config();
 // API_KEY = config.youtube_api_key;
 API_KEY = process.env.YOUTUBE_API_KEY;
 const got = require('got');
+const fs = require('fs');
 
 
 const WebSocket = require('ws');
@@ -19,8 +20,15 @@ app.listen(PORT, () => {
   console.log(`Application started and Listening on port ${PORT}`);
 });
 
+
+var client_html; 
+fs.readFile(__dirname + "/client.html", 'utf8', function (err, data) {
+    client_html = data.replaceAll("{{PORT}}", PORT);
+});
+
 app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/client.html");
+    res.send(client_html);
+//   res.sendFile(__dirname + "/client.html");
 });
 
 app.get("/search", (req, res) => {
