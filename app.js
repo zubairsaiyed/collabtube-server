@@ -13,9 +13,10 @@ const app = express();
 var expressWs = require('express-ws')(app);
 var wss = expressWs.getWss();
 
+const PORT = process.env.PORT || 3000;
 
-app.listen(process.env.PORT || 3000, () => {
-  console.log("Application started and Listening on port 3000");
+app.listen(PORT, () => {
+  console.log(`Application started and Listening on port ${PORT}`);
 });
 
 app.get("/", (req, res) => {
