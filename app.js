@@ -23,7 +23,7 @@ app.listen(PORT, () => {
 
 var client_html = fs.readFileSync(__dirname + "/client.html")
 client_html = client_html.toString();
-client_html = client_html.replaceAll("{{PORT}}", PORT);
+client_html = client_html.replace(/\{\{PORT\}\}/g, PORT);
 console.log(client_html);
 
 app.get("/", (req, res) => {
