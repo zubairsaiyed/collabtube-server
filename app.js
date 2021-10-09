@@ -21,11 +21,8 @@ app.listen(PORT, () => {
 });
 
 
-var client_html; 
-fs.readFile(__dirname + "/client.html", 'utf8', function (err, data) {
-    client_html = data
-    client_html = client_html.replaceAll("{{PORT}}", PORT);
-});
+var client_html = fs.readFileSync(__dirname + "/client.html")
+client_html = client_html.toString().replaceAll("{{PORT}}", PORT);
 
 app.get("/", (req, res) => {
     res.send(client_html);
