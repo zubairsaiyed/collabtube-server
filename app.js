@@ -1,7 +1,7 @@
 // API_KEY = config.youtube_api_key;
 API_KEY = process.env.YOUTUBE_API_KEY;
 const got = require('got');
-const fs = require('fs');
+// const fs = require('fs');
 
 
 const WebSocket = require('ws');
@@ -18,14 +18,14 @@ app.listen(PORT, () => {
 });
 
 
-var client_html = fs.readFileSync(__dirname + "/client.html")
-client_html = client_html.toString();
-client_html = client_html.replace(/\{\{PORT\}\}/g, PORT);
-console.log(client_html);
+// var client_html = fs.readFileSync(__dirname + "/client.html")
+// client_html = client_html.toString();
+// client_html = client_html.replace(/\{\{PORT\}\}/g, PORT);
+// console.log(client_html);
 
 app.get("/", (req, res) => {
-    res.send(client_html);
-//   res.sendFile(__dirname + "/client.html");
+    // res.send(client_html);
+  res.sendFile(__dirname + "/client.html");
 });
 
 app.get("/search", (req, res) => {
