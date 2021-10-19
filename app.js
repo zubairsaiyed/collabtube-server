@@ -1,12 +1,3 @@
-const result = require('dotenv').config();
-
-if (result.error) {
-    throw result.error
-  }
-  
-  console.log(result.parsed)
-
-// var config = require('./config');
 // API_KEY = config.youtube_api_key;
 API_KEY = process.env.YOUTUBE_API_KEY;
 const got = require('got');
