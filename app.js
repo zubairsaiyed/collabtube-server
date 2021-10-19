@@ -218,10 +218,13 @@ function updateSession(ws, session_id) {
     console.log("Set session id for connection " + ws + " to " + ws_to_session.get(ws));
     // TODO - send existing queue to new connection, if it exists
     if (queues.has(session_id)) {
-        var data = {"action": "update_queue", "queue": queues.get(session_id)};
-        ws.send(JSON.stringify(data));
         console.log("Sending existing queue: " + queues.get(session_id));
+        var data = {"action": "update_queue", "queue": queues.get(session_id)};
+    } else {
+        console.log("No existing queue, sending empty list");
+        var data = {"action": "update_queue", "queue": []};
     }
+    ws.send(JSON.stringify(data));
 
     if (session_to_ws.has(session_id)) {
         session_to_ws.get(session_id).add(ws);
