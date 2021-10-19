@@ -43,8 +43,6 @@
 
 </body>
 <script>
-const key = `AIzaSyDnH5-RlEB4CjH0VZp_LyuXaSq4-xtkSxY`;  // extra
-
 var data = {
     session_id: "default_session",
     message: new Date().toLocaleTimeString(),
@@ -68,7 +66,11 @@ function test(vid) {
     alert(vid);
 }
 
-    const ws = new WebSocket('ws://' + window.location.hostname + ':{{PORT}}/');
+    var socket_protocol = 'ws';
+    if (window.location.protocol == 'https:') {
+        socket_protocol = 'wss';
+    }
+    const ws = new WebSocket(socket_protocol + '://' + window.location.hostname + ':{{PORT}}/');
     ws.onopen = function() {
         console.log('WebSocket Client Connected');
         ws.send(JSON.stringify({'action': 'set_session', 'session_id': app.session_id}));
