@@ -148,7 +148,7 @@ function test(vid) {
     }
 
     function appendSnippetToQueue(vid) {
-        const url = 'http://' + window.location.hostname + `:{{PORT}}/video?id=${vid}`;
+        const url = window.location.protocol + '//' + window.location.hostname + `:{{PORT}}/video?id=${vid}`;
         fetch(url)
         .then(response => response.json())
         .then(resp => {
@@ -162,7 +162,7 @@ function test(vid) {
 
     function queryYoutube() {
         var query_terms = encodeURIComponent(document.getElementById("search_terms").value);
-        const url = 'http://' + window.location.hostname + `:{{PORT}}/search?q=${query_terms}`;
+        const url = window.location.protocol + '//' + window.location.hostname + `:{{PORT}}/search?q=${query_terms}`;
         fetch(url)
         .then(response => response.json())
         .then(resp => {
