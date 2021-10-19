@@ -70,7 +70,8 @@ function test(vid) {
     if (window.location.protocol == 'https:') {
         socket_protocol = 'wss';
     }
-    const ws = new WebSocket(socket_protocol + '://' + window.location.hostname + ':{{PORT}}/');
+    // const ws = new WebSocket(socket_protocol + '://' + window.location.hostname + ':{{PORT}}/');
+    const ws = new WebSocket(socket_protocol + '://' + window.location.hostname + '/');
     ws.onopen = function() {
         console.log('WebSocket Client Connected');
         ws.send(JSON.stringify({'action': 'set_session', 'session_id': app.session_id}));
@@ -148,7 +149,8 @@ function test(vid) {
     }
 
     function appendSnippetToQueue(vid) {
-        const url = window.location.protocol + '//' + window.location.hostname + `:{{PORT}}/video?id=${vid}`;
+        // const url = window.location.protocol + '//' + window.location.hostname + `:{{PORT}}/video?id=${vid}`;
+        const url = window.location.protocol + '//' + window.location.hostname + `/video?id=${vid}`;
         fetch(url)
         .then(response => response.json())
         .then(resp => {
@@ -162,7 +164,8 @@ function test(vid) {
 
     function queryYoutube() {
         var query_terms = encodeURIComponent(document.getElementById("search_terms").value);
-        const url = window.location.protocol + '//' + window.location.hostname + `:{{PORT}}/search?q=${query_terms}`;
+        // const url = window.location.protocol + '//' + window.location.hostname + `:{{PORT}}/search?q=${query_terms}`;
+        const url = window.location.protocol + '//' + window.location.hostname + `/search?q=${query_terms}`;
         fetch(url)
         .then(response => response.json())
         .then(resp => {
