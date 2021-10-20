@@ -1,77 +1,130 @@
 <html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://unpkg.com/buefy/dist/buefy.min.css">
+    </head>
     <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
     <!-- <script src="https://cdn.jsdelivr.net/npm/vue@2"></script> -->
 <body>
-    <div id="app">
-        <h1> Collabtube </h1>
-        <h3 id='session_banner'> Session: {{session_id}} </h3>
-            
-        <input id="sessionId" type='text'>
-        <input id="setSessionId" type='button' onclick="submitSessionId()" value="Set Session ID">
-        <!-- <input id="reloadQueue" type='button' onclick="reloadQueue()" value="Reload Queue"> -->
-        <input id="nextVideo" type='button' onclick="requestNextVideo()" value="Next Video">
-        <input id="newVideoId" type="text">
-        <input id="enqueueVideo" type="button" onclick="enqueueVideo()" value="Enqueue Video">
-        <input id="clearQueue" type="button" onclick="clearQueue()" value="Clear">
-        <h2>Queue</h2>
-        <ul id="queue">
-            <template v-for="item in queue">
-                <li>
-                    <img :src="item.snippet.thumbnails.default.url" />
-                    {{ item.snippet.title }}
-            </li>
-            </template>
-        </ul>
+    <div id="app" class="container">
+        <h1 class="title is-1"> Collabtube </h1>
+        <h3 id='session_banner' class="subtitle is-4"> Session: {{session_id}} </h3>
 
-        <div id="search_div">
-            <h2>Search</h2>
-            <input type="text" id="search_terms">
-            <input id="search" type="button" onclick="queryYoutube()" value="Search">
-            <h3>Results</h3>
-            <ul id="query_results">
-                <template v-for="item in results">
-                    <li v-on:click="appendResultToQueue(item.id.videoId)">
-                        <img :src="item.snippet.thumbnails.default.url" />
-                        {{ item.snippet.title }}
+        <form class="box">
+            <h2 class="title is-4">Controls</h2>
+            <div class="field has-addons">
+                <div class="control">
+                    <input class="input" id="sessionId" type='text'>
+                </div>
+                <div class="control">
+                    <button class="button is-info" id="setSessionId" type='button' onclick="submitSessionId()">Set Session ID</button>
+                </div>
+            </div>
+            <div class="field has-addons">
+                <div class="control">
+                <input class="input" id="newVideoId" type="text">
+                </div>
+                <div class="control">
+                    <button class="button is-info" id="enqueueVideo" type="button" onclick="enqueue()">Enqueue Video</button>
+                </div>
+            </div>
+            <button class="button" id="nextVideo" type='button' onclick="requestNextVideo()">Next Video</button>
+            <button class="button" id="clearQueue" type="button" onclick="clearQueue()">Clear Queue</button>
+        </form>
+
+        <div class="box">
+            <h2 class="title is-4">Queue</h2>
+            <ul id="queue">
+                <template v-for="item in queue">
+                    <li class="media">
+                        <img class="media-left" :src="item.snippet.thumbnails.default.url" />
+                        <div class="container">
+                            <span class="content media-left"> {{ item.snippet.title }} </span>
+                        </div>
                     </li>
                 </template>
             </ul>
         </div>
 
-        {{ message }}
+        <div id="search_div" class="box content">
+            <h2 class="title is-4">Search</h2>
+            <div class="field has-addons">
+                <div class="control">
+                    <div class="control">
+                    <input class="input" id="search_terms" type="text">
+                    </div>
+                </div>
+                <div class="control">
+                    <button class="button is-info" id="search" type="button" onclick="queryYoutube()">Search</button>
+                </div>
+            </div>
+            <h3 class="title is-5 is-hidden" id="results_header">Results</h3>
+            <ul id="query_results">
+                <template v-for="item in results">
+                    <li v-on:click="appendResultToQueue(item.id.videoId)" class="media">
+                        <img class="media-left" :src="item.snippet.thumbnails.default.url" />
+                        <div class="container">
+                            <span class="content media-left"> {{ item.snippet.title }} </span>
+                        </div>
+                    </li>
+                </template>
+            </ul>
+        </div>
+
+        <footer class="footer">
+            {{ message }}
+        </footer>
     </div>
 
-</body>
-<script>
-var data = {
-    session_id: "default_session",
-    message: new Date().toLocaleTimeString(),
-    queue: [],
-    results: [],
-};
+    <script src="https://unpkg.com/vue"></script>
+    <!-- Full bundle -->
+    <script src="https://unpkg.com/buefy/dist/buefy.min.js"></script>
 
-setInterval(function() {
-    data.message = new Date().toLocaleTimeString();
-}, 1000);
+    <script>
 
-var app = new Vue({
-  el: '#app',
-  data: data,
-  methods: {
-      appendResultToQueue: appendResultToQueue,
-  },
-});
+    window.addEventListener('DOMContentLoaded', (event) => {
+        document.getElementById("sessionId").addEventListener("keydown", function(e) {
+            if (e.key === "Enter") {
+                submitSessionId();
+            }
+        });
+        document.getElementById("newVideoId").addEventListener("keydown", function(e) {
+            if (e.key === "Enter") {
+                enqueue();
+            }
+        });
+        document.getElementById("search_terms").addEventListener("keydown", function(e) {
+            if (e.key === "Enter") {
+                queryYoutube();
+            }
+        });
+    });
 
-function test(vid) {
-    alert(vid);
-}
+    var data = {
+        session_id: "default_session",
+        message: new Date().toLocaleTimeString(),
+        queue: [],
+        results: [],
+    };
+
+    setInterval(function() {
+        data.message = new Date().toLocaleTimeString();
+    }, 1000);
+
+    var app = new Vue({
+    el: '#app',
+    data: data,
+    methods: {
+        appendResultToQueue: appendResultToQueue,
+    },
+    });
 
     var socket_protocol = 'ws';
     if (window.location.protocol == 'https:') {
         socket_protocol = 'wss';
     }
-    // const ws = new WebSocket(socket_protocol + '://' + window.location.hostname + ':{{PORT}}/');
-    const ws = new WebSocket(socket_protocol + '://' + window.location.hostname + '/');
+    const ws = new WebSocket(socket_protocol + '://' + window.location.host + '/');
     ws.onopen = function() {
         console.log('WebSocket Client Connected');
         ws.send(JSON.stringify({'action': 'set_session', 'session_id': app.session_id}));
@@ -102,7 +155,8 @@ function test(vid) {
                 console.log("cleared queue");
                 break;
             case "update_queue":
-                msg.queue.forEach(appendSnippetToQueue);
+                queue = Array(msg.queue.length);
+                msg.queue.forEach((vid, i) => appendSnippetToQueue(vid, i));
                 console.log("updated queue: " + app.queue);
                 break;
         }
@@ -112,7 +166,7 @@ function test(vid) {
         ws.send(JSON.stringify({'action': "clear_queue"}));
     }
 
-    function enqueueVideo() {
+    function enqueue() {
         var new_video_id = document.getElementById("newVideoId").value;
         if (new_video_id.trim() == "") return;
         document.getElementById("newVideoId").value = "";
@@ -148,31 +202,35 @@ function test(vid) {
         return url.searchParams.get("v");
     }
 
-    function appendSnippetToQueue(vid) {
-        // const url = window.location.protocol + '//' + window.location.hostname + `:{{PORT}}/video?id=${vid}`;
-        const url = window.location.protocol + '//' + window.location.hostname + `/video?id=${vid}`;
+    function appendSnippetToQueue(vid, index = -1) {
+        const url = window.location.protocol + '//' + window.location.host + `/video?id=${vid}`;
         fetch(url)
         .then(response => response.json())
         .then(resp => {
-            app.queue.push(resp.items[0]);
+            if (index == -1) {
+                app.queue.push(resp.items[0]);
+            } else {
+                app.queue[index] = resp.items[0]; 
+            }
         });
     }
-    
+
     function appendResultToQueue(vid) {
         ws.send(JSON.stringify({'action': 'append_video', 'video_link': vid}));
     }
 
     function queryYoutube() {
         var query_terms = encodeURIComponent(document.getElementById("search_terms").value);
-        // const url = window.location.protocol + '//' + window.location.hostname + `:{{PORT}}/search?q=${query_terms}`;
-        const url = window.location.protocol + '//' + window.location.hostname + `/search?q=${query_terms}`;
+        const url = window.location.protocol + '//' + window.location.host + `/search?q=${query_terms}`;
         fetch(url)
         .then(response => response.json())
         .then(resp => {
+            document.getElementById("results_header").className = "";
             app.results = resp.items;
         });
     }
 
-</script>
+    </script>
+</body>
 
 </html>
