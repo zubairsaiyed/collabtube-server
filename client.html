@@ -30,7 +30,7 @@
                 </div>
             </div>
             <button class="button" id="nextVideo" type='button' onclick="requestNextVideo()">Next Video</button>
-            <button class="button" id="clearQueue" type="button" onclick="clearQueue()">Clear Queue</button>
+            <button class="button" id="clearQueue" type="button" onclick="clear_queue()">Clear Queue</button>
         </form>
 
         <div class="box">
@@ -162,7 +162,7 @@
         }
     };
 
-    function clearQueue() {
+    function clear_queue() {
         ws.send(JSON.stringify({'action': "clear_queue"}));
     }
 
