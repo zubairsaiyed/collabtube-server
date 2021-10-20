@@ -7,74 +7,79 @@
     <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
     <!-- <script src="https://cdn.jsdelivr.net/npm/vue@2"></script> -->
 <body>
-    <div id="app" class="container">
-        <h1 class="title is-1"> Collabtube </h1>
-        <h3 id='session_banner' class="subtitle is-4"> Session: {{session_id}} </h3>
-
-        <form class="box">
-            <h2 class="title is-4">Controls</h2>
-            <div class="field has-addons">
-                <div class="control">
-                    <input class="input" id="sessionId" type='text'>
+    <div class="container">
+        <div id="app">
+            <section class="hero" id="hero_header">
+                <div class="hero-body is-link">
+                    <h1 class="title is-1"> Collabtube </h1>
+                    <h3 id='session_banner' class="subtitle is-4"> Session: {{session_id}} </h3>
                 </div>
-                <div class="control">
-                    <button class="button is-info" id="setSessionId" type='button' onclick="submitSessionId()">Set Session ID</button>
-                </div>
-            </div>
-            <div class="field has-addons">
-                <div class="control">
-                <input class="input" id="newVideoId" type="text">
-                </div>
-                <div class="control">
-                    <button class="button is-info" id="enqueueVideo" type="button" onclick="enqueue()">Enqueue Video</button>
-                </div>
-            </div>
-            <button class="button" id="nextVideo" type='button' onclick="requestNextVideo()">Next Video</button>
-            <button class="button" id="clearQueue" type="button" onclick="clear_queue()">Clear Queue</button>
-        </form>
-
-        <div class="box">
-            <h2 class="title is-4">Queue</h2>
-            <ul id="queue">
-                <template v-for="item in queue">
-                    <li class="media">
-                        <img class="media-left" :src="item.snippet.thumbnails.default.url" />
-                        <div class="container">
-                            <span class="content media-left"> {{ item.snippet.title }} </span>
-                        </div>
-                    </li>
-                </template>
-            </ul>
-        </div>
-
-        <div id="search_div" class="box content">
-            <h2 class="title is-4">Search</h2>
-            <div class="field has-addons">
-                <div class="control">
+            </section>
+            <form class="box">
+                <h2 class="title is-4">Controls</h2>
+                <div class="field has-addons">
                     <div class="control">
-                    <input class="input" id="search_terms" type="text">
+                        <input class="input" id="sessionId" type='text'>
+                    </div>
+                    <div class="control">
+                        <button class="button is-info" id="setSessionId" type='button' onclick="submitSessionId()">Set Session ID</button>
                     </div>
                 </div>
-                <div class="control">
-                    <button class="button is-info" id="search" type="button" onclick="queryYoutube()">Search</button>
+                <div class="field has-addons">
+                    <div class="control">
+                    <input class="input" id="newVideoId" type="text">
+                    </div>
+                    <div class="control">
+                        <button class="button is-info" id="enqueueVideo" type="button" onclick="enqueue()">Enqueue Video</button>
+                    </div>
                 </div>
-            </div>
-            <h3 class="title is-5 is-hidden" id="results_header">Results</h3>
-            <ul id="query_results">
-                <template v-for="item in results">
-                    <li v-on:click="appendResultToQueue(item.id.videoId)" class="media">
-                        <img class="media-left" :src="item.snippet.thumbnails.default.url" />
-                        <div class="container">
-                            <span class="content media-left"> {{ item.snippet.title }} </span>
-                        </div>
-                    </li>
-                </template>
-            </ul>
-        </div>
+                <button class="button" id="nextVideo" type='button' onclick="requestNextVideo()">Next Video</button>
+                <button class="button" id="clearQueue" type="button" onclick="clear_queue()">Clear Queue</button>
+            </form>
 
-        <footer class="footer">
-            {{ message }}
-        </footer>
+            <div class="box">
+                <h2 class="title is-4">Queue</h2>
+                <ul id="queue">
+                    <template v-for="item in queue">
+                        <li class="media">
+                            <img class="media-left" :src="item.snippet.thumbnails.default.url" />
+                            <div class="container">
+                                <span class="content media-left"> {{ item.snippet.title }} </span>
+                            </div>
+                        </li>
+                    </template>
+                </ul>
+            </div>
+
+            <div id="search_div" class="box content">
+                <h2 class="title is-4">Search</h2>
+                <div class="field has-addons">
+                    <div class="control">
+                        <div class="control">
+                        <input class="input" id="search_terms" type="text">
+                        </div>
+                    </div>
+                    <div class="control">
+                        <button class="button is-info" id="search" type="button" onclick="queryYoutube()">Search</button>
+                    </div>
+                </div>
+                <h3 class="title is-5 is-hidden" id="results_header">Results</h3>
+                <ul id="query_results">
+                    <template v-for="item in results">
+                        <li v-on:click="appendResultToQueue(item.id.videoId)" class="media">
+                            <img class="media-left" :src="item.snippet.thumbnails.default.url" />
+                            <div class="container">
+                                <span class="content media-left"> {{ item.snippet.title }} </span>
+                            </div>
+                        </li>
+                    </template>
+                </ul>
+            </div>
+
+            <footer class="footer">
+                {{ message }}
+            </footer>
+        </div>
     </div>
 
     <script src="https://unpkg.com/vue"></script>
@@ -108,10 +113,6 @@
         results: [],
     };
 
-    setInterval(function() {
-        data.message = new Date().toLocaleTimeString();
-    }, 1000);
-
     var app = new Vue({
     el: '#app',
     data: data,
@@ -124,43 +125,66 @@
     if (window.location.protocol == 'https:') {
         socket_protocol = 'wss';
     }
-    const ws = new WebSocket(socket_protocol + '://' + window.location.host + '/');
-    ws.onopen = function() {
-        console.log('WebSocket Client Connected');
-        ws.send(JSON.stringify({'action': 'set_session', 'session_id': app.session_id}));
-        ws.send(JSON.stringify({'action': 'message', 'message': 'Hi this is web client.'}));
-    };
-    ws.onmessage = function(event) {
-        console.log("Received: '" + event.data + "'");
-        var msg = JSON.parse(event.data);
-        switch (msg.action) {
-            case "append_video":
-                video_link = msg.video_link;
-                console.log("appending video: " + video_link);
-                appendSnippetToQueue(video_link);
-                // app.queue.push(getSnippet(video_link));
-                break;
-            case "pop_video":
-                video_link = msg.video_link;
-                console.log("popping video: " + video_link)
-                if (app.queue.length > 0 && app.queue[0].id == video_link) {
-                    app.queue.shift();
-                    console.log("popped video: " + video_link);
-                } else {
-                    console.log("WARNING: video " + video_link + " is not at the top of the queue");
-                }
-                break;
-            case "clear_queue":
-                app.queue = [];
-                console.log("cleared queue");
-                break;
-            case "update_queue":
-                queue = Array(msg.queue.length);
-                msg.queue.forEach((vid, i) => appendSnippetToQueue(vid, i));
-                console.log("updated queue: " + app.queue);
-                break;
+    var ws;
+    function createWebSocketConnection() {
+        try {
+            ws = new WebSocket(socket_protocol + '://' + window.location.host + '/');
+        } catch {
+            document.getElementById("hero_header").className = "hero is-danger";
+            console.log("failed to connect to websocket server");
         }
-    };
+        ws.onopen = function() {
+            console.log('WebSocket Client Connected');
+            document.getElementById("hero_header").className = "hero";
+            ws.send(JSON.stringify({'action': 'set_session', 'session_id': app.session_id}));
+            ws.send(JSON.stringify({'action': 'message', 'message': 'Hi this is web client.'}));
+        };
+        ws.onmessage = function(event) {
+            console.log("Received: '" + event.data + "'");
+            var msg = JSON.parse(event.data);
+            switch (msg.action) {
+                case "append_video":
+                    video_link = msg.video_link;
+                    console.log("appending video: " + video_link);
+                    appendSnippetToQueue(video_link);
+                    // app.queue.push(getSnippet(video_link));
+                    break;
+                case "pop_video":
+                    video_link = msg.video_link;
+                    console.log("popping video: " + video_link)
+                    if (app.queue.length > 0 && app.queue[0].id == video_link) {
+                        app.queue.shift();
+                        console.log("popped video: " + video_link);
+                    } else {
+                        console.log("WARNING: video " + video_link + " is not at the top of the queue");
+                    }
+                    break;
+                case "clear_queue":
+                    app.queue = [];
+                    console.log("cleared queue");
+                    break;
+                case "update_queue":
+                    queue = Array(msg.queue.length);
+                    msg.queue.forEach((vid, i) => appendSnippetToQueue(vid, i));
+                    console.log("updated queue: " + app.queue);
+                    break;
+            }
+        };
+        ws.onclose = function () {
+            document.getElementById("hero_header").className = "hero is-danger";
+            console.log("==== web socket closed ======");
+        };
+    }
+
+    setInterval(function() {
+        data.message = new Date().toLocaleTimeString();
+        if (ws === undefined || ws.readyState != 1) {
+            console.log("--------socket disconnected-------")
+            document.getElementById("hero_header").className = "hero is-danger";
+            createWebSocketConnection();
+        }
+        
+    }, 1000);
 
     function clear_queue() {
         ws.send(JSON.stringify({'action': "clear_queue"}));
