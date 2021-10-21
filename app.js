@@ -45,9 +45,6 @@ app.get("/video", (req, res) => {
     });
 });
     
-// const wss = new WebSocket.Server({
-//     port: 8080,
-// });
 var ws_to_session = new Map();
 var session_to_ws = new Map();
 var queues = new Map();
@@ -58,7 +55,6 @@ function heartbeat(ws) {
   ws.isAlive = true;
 }
 
-// wss.on('connection', (ws, req) => {
 app.ws('/', function(ws, req) {
     console.log("connection opened: " + req.socket.remoteAddress);
 
@@ -99,7 +95,16 @@ app.ws('/', function(ws, req) {
                 console.log(msg.message);
                 break;
             case "request_next_video":
-                broadcastNextVideo(session_id);
+                var data = {"action": "request_next_video"};
+                broadcast(session_id, data);
+                break;
+            case "update_queue":
+                if (!queues.has(session_id)) {
+                    console.log("WARNING: no such queue exists");
+                }
+                queues.set(session_id, msg.queue);
+                var data = {"action": "update_queue", "queue": msg.queue};
+                broadcast(session_id, data, skipWs=ws);
                 break;
             case "clear_queue":
                 if (queues.has(session_id)) {
@@ -107,7 +112,8 @@ app.ws('/', function(ws, req) {
                 } else {
                     console.log("WARNING: no such queue exists");
                 }
-                broadcastClear(session_id);
+                var data = {"action": "clear_queue"};
+                broadcast(session_id, data);
                 break;
             case "pop_video":
                 console.log("popping video " + msg.video_link + " from session id " + session_id);
@@ -118,7 +124,8 @@ app.ws('/', function(ws, req) {
                 } else {
                     console.log("Popped " + queues.get(session_id).shift() + " from queue");
                 }
-                broadcastPop(session_id, msg.video_link);
+                var data = {"action": "pop_video", "video_link": msg.video_link};
+                broadcast(session_id, data);
                 break;
             case "append_video":
                 console.log("appending video " + msg.video_link + " to session id " + session_id);
@@ -127,7 +134,8 @@ app.ws('/', function(ws, req) {
                 } else {
                     queues.set(session_id, [msg.video_link]);
                 }
-                broadcastAppend(session_id, msg.video_link);
+                var data = {"action": "append_video", "video_link": msg.video_link};
+                broadcast(session_id, data);
                 break;
             default:
                 console.log("didn't recognize msg type " + msg);
@@ -138,53 +146,15 @@ app.ws('/', function(ws, req) {
 
 });
 
-function broadcastAppend(session_id, video_link) {
-    console.log("broadcasting append video " + video_link + " for session id: " + session_id);
+
+function broadcast(session_id, data, skipWs=null) {
+    console.log(`broadcasting ${data['action']} for session id: ${session_id}: ${data}`);
     session_to_ws.get(session_id).forEach(function each(ws) {
-        if (ws.readyState === WebSocket.OPEN) {
-            var data = {"action": "append_video", "video_link": video_link};
-            ws.send(JSON.stringify(data));
+        if (skipWs !== null && ws === skipWs) {
+            return false;
         }
-    });
-}
-
-function broadcastPop(session_id, video_link) {
-    console.log("broadcasting pop video " + video_link + " for session id: " + session_id);
-    session_to_ws.get(session_id).forEach(function each(ws) {
         if (ws.readyState === WebSocket.OPEN) {
-            var data = {"action": "pop_video", "video_link": video_link};
             ws.send(JSON.stringify(data));
-        }
-    });
-}
-
-function broadcastNextVideo(session_id) {
-    console.log("broadcasting request next video for session id: " + session_id);
-    session_to_ws.get(session_id).forEach(function each(ws) {
-        if (ws.readyState === WebSocket.OPEN) {
-            var data = {"action": "request_next_video"};
-            ws.send(JSON.stringify(data));
-        }
-    });
-}
-
-
-function broadcastClear(session_id) {
-    console.log("broadcasting clear queue for session id: " + session_id);
-    session_to_ws.get(session_id).forEach(function each(ws) {
-        if (ws.readyState === WebSocket.OPEN) {
-            var data = {"action": "clear_queue"};
-            ws.send(JSON.stringify(data));
-        }
-    });
-}
-
-
-function updateQueues() {
-    wss.clients.forEach(function each(client) {
-        if (client.readyState === WebSocket.OPEN) {
-            var data = {"action": "update_queues", "queues": queues};
-            client.send(JSON.stringify(data));
         }
     });
 }
