@@ -16,6 +16,10 @@ app.get("/", (req, res) => {
   res.sendFile(__dirname + "/client.html");
 });
 
+app.get("/favicon.png", (req, res) => {
+  res.sendFile(__dirname + "/favicon.png");
+});
+
 app.get("/search", (req, res) => {
     const numResults = 10;
     const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=${numResults}&q=${req.query.q}&key=`+API_KEY;
