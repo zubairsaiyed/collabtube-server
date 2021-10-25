@@ -21,7 +21,7 @@ function render_client_html(session_id) {
 }
 
 app.get("/", (req, res) => {
-    res.send(render_client_html("default_session"));
+    res.redirect("/s/global")
 });
 
 app.get("/s/:sessionId", (req, res) => {
