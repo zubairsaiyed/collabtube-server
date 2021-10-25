@@ -38,7 +38,7 @@ app.get("/favicon.png", (req, res) => {
 
 app.get("/search", (req, res) => {
     const numResults = 10;
-    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=${numResults}&q=${req.query.q}&key=`+API_KEY;
+    const url = `https://www.googleapis.com/youtube/v3/search?type=video&part=snippet&maxResults=${numResults}&q=${req.query.q}&key=`+API_KEY;
     got.get(url, {responseType: 'json'})
     .then(resp => {
         const headerDate = resp.headers && resp.headers.date ? resp.headers.date : 'no response date';
@@ -148,6 +148,10 @@ app.ws('/', function(ws, req) {
                 broadcast(session_id, data);
                 break;
             case "append_video":
+                if (msg.video_link === null || msg.video_link === undefined || msg.video_link.length === 0) {
+                    console.log("invalid video link!");
+                    break;
+                }
                 console.log("appending video " + msg.video_link + " to session id " + session_id);
                 if (queues.has(session_id)) {
                     queues.get(session_id).push(msg.video_link);
@@ -229,8 +233,18 @@ const interval = setInterval(function ping() {
     console.log("num of clients: " + count);
     console.log("ws_to_session: " + ws_to_session.size);
     console.log("session_to_ws: " + session_to_ws.size);
-    console.log("queues: ");
-    queues.forEach(function(v, k) {
-        console.log("   " + k + " | " + v);
-    });
+    if (queues.length > 0) {
+        var empty_sessions = [];
+        console.log("queues: ");
+        queues.forEach(function(video_queue, session_id) {
+            if (video_queue.length === 0) {
+                empty_sessions.push(session_id);
+            }
+            console.log("   " + session_id + " | " + video_queue);
+        });
+        if (empty_sessions.length > 0) {
+            console.log("removing empty sessions: " + empty_sessions);
+            empty_sessions.forEach(queues.delete);
+        }
+    }
   }, 10000);

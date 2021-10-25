@@ -5,6 +5,14 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="https://unpkg.com/buefy/dist/buefy.min.css">
+        <style>
+            #queue li button.delete {
+                display: none;
+            }
+            #queue li:hover button.delete {
+                display: block;
+            }
+        </style>
     </head>
     <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
     <script src="//cdn.jsdelivr.net/npm/sortablejs@1.8.4/Sortable.min.js"></script>
@@ -47,7 +55,7 @@
                         <h2 class="title is-4">Queue</h2>
                     </div>
                     <div class="level-right">
-                        <button class="button is-small" id="nextVideo" type='button' onclick="requestNextVideo()">Next Video</button>
+                        <button class="button is-small" id="nextVideo" type='button' onclick="requestNextVideo()">Play Next Video</button>
                         <button class="button is-small" id="clearQueue" type="button" onclick="clear_queue()">Clear Queue</button>
                     </div>
                 </div>
@@ -55,11 +63,12 @@
                     <ul id="queue">
                         <!-- <draggable v-model="queue" group="people" @start="drag=true" @end="drag=false"> -->
                         <draggable v-model="queue" @end="checkReorder">
-                            <template v-for="item in queue">
+                            <template v-for="(item, idx) in queue">
                                 <li class="media">
                                     <img class="media-left" :src="item.snippet.thumbnails.default.url" />
                                     <div class="container">
                                         <span class="content media-left"> {{ item.snippet.title }} </span>
+                                        <button class="delete is-pulled-right" @click="removeItemFromQueue(idx)"></button>
                                     </div>
                                 </li>
                             </template>
@@ -88,6 +97,7 @@
                             <img class="media-left" :src="item.snippet.thumbnails.default.url" />
                             <div class="container">
                                 <span class="content media-left"> {{ item.snippet.title }} </span>
+
                             </div>
                         </li>
                     </template>
@@ -114,16 +124,18 @@
     <script>
 
     window.addEventListener('DOMContentLoaded', (event) => {
-        document.getElementById("sessionId").addEventListener("keydown", function(e) {
-            if (e.key === "Enter") {
-                submitSessionId();
-            }
-        });
-        document.getElementById("newVideoId").addEventListener("keydown", function(e) {
-            if (e.key === "Enter") {
-                enqueue();
-            }
-        });
+
+        // document.getElementById("sessionId").addEventListener("keydown", function(e) {
+        //     if (e.key === "Enter") {
+        //         submitSessionId();
+        //     }
+        // });
+        // document.getElementById("newVideoId").addEventListener("keydown", function(e) {
+        //     if (e.key === "Enter") {
+        //         enqueue();
+        //     }
+        // });
+
         document.getElementById("search_terms").addEventListener("keydown", function(e) {
             if (e.key === "Enter") {
                 queryYoutube();
@@ -144,9 +156,13 @@
     el: '#app',
     data: data,
     methods: {
+        removeItemFromQueue: function(idx) {
+            data.queue.splice(idx, 1);
+            updateQueueOnServer();
+        },
         appendResultToQueue: appendResultToQueue,
         checkReorder: function(evt){
-            updateQueue();
+            updateQueueOnServer();
         }
     },
     });
@@ -175,6 +191,9 @@
             switch (msg.action) {
                 case "append_video":
                     video_link = msg.video_link;
+                    if (video_link === undefined || video_link === null) {
+                        console.log("invalid video id!!!");
+                    }
                     console.log("appending video: " + video_link);
                     appendSnippetToQueue(video_link);
                     break;
@@ -195,6 +214,7 @@
                 case "update_queue":
                     queue = Array(msg.queue.length);
                     msg.queue.forEach((vid, i) => appendSnippetToQueue(vid, i));
+                    data.queue.splice(queue.length);
                     console.log("updated queue: " + app.queue);
                     break;
             }
@@ -233,7 +253,7 @@
         ws.send(JSON.stringify({'action': "append_video", 'video_link': video_id}));
     }
 
-    function updateQueue() {
+    function updateQueueOnServer() {
         console.log("updating queue");
         ws.send(JSON.stringify({'action': "update_queue", "queue": data.queue.map(e => e.id)}));
     }
