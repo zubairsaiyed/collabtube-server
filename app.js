@@ -1,3 +1,4 @@
+const fs = require('fs');
 const got = require('got');
 const WebSocket = require('ws');
 const express = require("express");
@@ -12,12 +13,27 @@ app.listen(PORT, () => {
   console.log(`Application started and Listening on port ${PORT}`);
 });
 
+function render_client_html(session_id) {
+    var client_html = fs.readFileSync(__dirname + "/client.html")
+    client_html = client_html.toString();
+    client_html = client_html.replace(/\{\{session_id\}\}/g, session_id);
+    return  client_html;
+}
+
 app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/client.html");
+    res.send(render_client_html("default_session"));
+});
+
+app.get("/s/:sessionId", (req, res) => {
+    res.send(render_client_html(req.params.sessionId));
+});
+
+app.get("/build/qrcode.min.js", (req, res) => {
+    res.sendFile(__dirname + "/node_modules/qrcode/build/qrcode.min.js");
 });
 
 app.get("/favicon.png", (req, res) => {
-  res.sendFile(__dirname + "/favicon.png");
+    res.sendFile(__dirname + "/favicon.png");
 });
 
 app.get("/search", (req, res) => {

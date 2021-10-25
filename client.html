@@ -9,6 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
     <script src="//cdn.jsdelivr.net/npm/sortablejs@1.8.4/Sortable.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/Vue.Draggable/2.20.0/vuedraggable.umd.min.js"></script>
+    <script src="/build/qrcode.min.js"></script>
 <body>
     <div class="container">
         <div id="app">
@@ -18,19 +19,19 @@
                     <h3 id='session_banner' class="subtitle is-4"> Session: {{session_id}} </h3>
                 </div>
             </section>
-            <form class="box">
+            <!-- <form class="box">
                 <h2 class="title is-4">Controls</h2>
                 <div class="field has-addons">
                     <div class="control">
                         <input class="input" id="sessionId" type='text'>
                     </div>
                     <div class="control">
-                        <button class="button is-info" id="setSessionId" type='button' onclick="submitSessionId()">Set Session ID</button>
+                        <button class="button is-info" id="setSessionId" type='button' onclick="joinSession()">Join Session</button>
                     </div>
                 </div>
                 <div class="field has-addons">
                     <div class="control">
-                    <input class="input" id="newVideoId" type="text">
+                        <input class="input" id="newVideoId" type="text">
                     </div>
                     <div class="control">
                         <button class="button is-info" id="enqueueVideo" type="button" onclick="enqueue()">Enqueue Video</button>
@@ -38,23 +39,34 @@
                 </div>
                 <button class="button" id="nextVideo" type='button' onclick="requestNextVideo()">Next Video</button>
                 <button class="button" id="clearQueue" type="button" onclick="clear_queue()">Clear Queue</button>
-            </form>
+            </form> -->
 
             <div class="box">
-                <h2 class="title is-4">Queue</h2>
-                <ul id="queue">
-                    <!-- <draggable v-model="queue" group="people" @start="drag=true" @end="drag=false"> -->
-                    <draggable v-model="queue" @end="checkReorder">
-                        <template v-for="item in queue">
-                            <li class="media">
-                                <img class="media-left" :src="item.snippet.thumbnails.default.url" />
-                                <div class="container">
-                                    <span class="content media-left"> {{ item.snippet.title }} </span>
-                                </div>
-                            </li>
-                        </template>
-                    </draggable>
-                </ul>
+                <div class="level is-mobile">
+                    <div class="level-left">
+                        <h2 class="title is-4">Queue</h2>
+                    </div>
+                    <div class="level-right">
+                        <button class="button is-small" id="nextVideo" type='button' onclick="requestNextVideo()">Next Video</button>
+                        <button class="button is-small" id="clearQueue" type="button" onclick="clear_queue()">Clear Queue</button>
+                    </div>
+                </div>
+                <div class="container">
+                    <ul id="queue">
+                        <!-- <draggable v-model="queue" group="people" @start="drag=true" @end="drag=false"> -->
+                        <draggable v-model="queue" @end="checkReorder">
+                            <template v-for="item in queue">
+                                <li class="media">
+                                    <img class="media-left" :src="item.snippet.thumbnails.default.url" />
+                                    <div class="container">
+                                        <span class="content media-left"> {{ item.snippet.title }} </span>
+                                    </div>
+                                </li>
+                            </template>
+                        </draggable>
+                    </ul>
+
+                </div>
             </div>
 
             <div id="search_div" class="box content">
@@ -83,7 +95,14 @@
             </div>
 
             <footer class="footer">
-                {{ message }}
+                <div class="level">
+                    <div class="level-left">
+                        <canvas id="canvas"></canvas>
+                    </div>
+                    <div class="level-right">
+                        {{ message }}
+                    </div>
+                </div>
             </footer>
         </div>
     </div>
@@ -115,7 +134,7 @@
     Vue.component("draggable", vuedraggable);
 
     var data = {
-        session_id: "default_session",
+        session_id: "{{session_id}}",
         message: new Date().toLocaleTimeString(),
         queue: [],
         results: [],
@@ -186,6 +205,8 @@
         };
     }
 
+    renderQRCode();
+
     setInterval(function() {
         data.message = new Date().toLocaleTimeString();
         if (ws === undefined || ws.readyState != 1) {
@@ -220,6 +241,13 @@
     function requestNextVideo() {
         console.log("requesting next video in queue");
         ws.send(JSON.stringify({'action': "request_next_video"}));
+    }
+
+    function joinSession() {
+        new_session_id = document.getElementById("sessionId").value;
+        if (new_session_id.trim() == "") return;
+        const url = window.location.protocol + '//' + window.location.host + `/s/${new_session_id}`;
+        window.location.href = url;
     }
 
     function submitSessionId() {
@@ -269,6 +297,12 @@
         });
     }
 
+    function renderQRCode() {
+        QRCode.toCanvas(document.getElementById('canvas'), window.location.href, function (error) {
+            if (error) console.error(error)
+                console.log('success!');
+        });
+    }
     </script>
 </body>
 
