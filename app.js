@@ -38,7 +38,8 @@ app.get("/favicon.png", (req, res) => {
 
 app.get("/search", (req, res) => {
     const numResults = 10;
-    const url = `https://www.googleapis.com/youtube/v3/search?type=video&part=snippet&maxResults=${numResults}&q=${req.query.q}&key=`+API_KEY;
+    var queryParams = new URLSearchParams(req.query).toString()
+    const url = `https://www.googleapis.com/youtube/v3/search?type=video&part=snippet&maxResults=${numResults}&${queryParams}&key=`+API_KEY;
     got.get(url, {responseType: 'json'})
     .then(resp => {
         const headerDate = resp.headers && resp.headers.date ? resp.headers.date : 'no response date';

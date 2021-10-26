@@ -83,11 +83,16 @@
                 <div class="field has-addons">
                     <div class="control">
                         <div class="control">
-                        <input class="input" id="search_terms" type="text">
+                            <input class="input" id="search_terms" type="text">
                         </div>
                     </div>
                     <div class="control">
                         <button class="button is-info" id="search" type="button" onclick="queryYoutube()">Search</button>
+                    </div>
+                    <div class="control is-flex pl-4">
+                        <label class="checkbox is-flex is-align-items-center">
+                            <input type="checkbox" checked id="hd_only"><span class="pl-1"> HD Only</span>
+                        </label>
                     </div>
                 </div>
                 <h3 class="title is-5 is-hidden" id="results_header">Results</h3>
@@ -307,8 +312,11 @@
     }
 
     function queryYoutube() {
-        var query_terms = encodeURIComponent(document.getElementById("search_terms").value);
-        const url = window.location.protocol + '//' + window.location.host + `/search?q=${query_terms}`;
+        var queryParams = new URLSearchParams({
+            q: document.getElementById("search_terms").value,
+            videoDefinition: document.getElementById("hd_only").checked ? "high" : "any",
+        }).toString();
+        const url = window.location.protocol + '//' + window.location.host + `/search?${queryParams}`;
         fetch(url)
         .then(response => response.json())
         .then(resp => {
