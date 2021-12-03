@@ -36,6 +36,10 @@ app.get("/favicon.png", (req, res) => {
     res.sendFile(__dirname + "/favicon.png");
 });
 
+app.get("/app_store.png", (req, res) => {
+    res.sendFile(__dirname + "/app_store.png");
+});
+
 app.get("/search", (req, res) => {
     const numResults = 10;
     var queryParams = new URLSearchParams(req.query).toString()
